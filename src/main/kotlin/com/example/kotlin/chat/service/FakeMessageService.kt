@@ -1,6 +1,8 @@
 package com.example.kotlin.chat.service
 
 import com.github.javafaker.Faker
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import org.springframework.stereotype.Service
 import java.net.URL
 import java.time.Instant
@@ -21,21 +23,25 @@ class FakeMessageService : MessageService {
         "Yoda"         to { Faker.instance().yoda().quote() }
     )
 
-    override suspend fun latest(): List<MessageVM> {
+    override fun latest(): Flow<MessageVM> {
         val count = Random.nextInt(1, 15)
         return (0..count).map {
             val user = users.values.random()
             val userQuote = usersQuotes.getValue(user.name).invoke()
 
             MessageVM(userQuote, user, Instant.now(), Random.nextBytes(10).toString())
-        }.toList()
+        }.asFlow()
     }
 
-    override suspend fun after(messageId: String): List<MessageVM> {
+    override fun after(messageId: String): Flow<MessageVM> {
         return latest()
     }
 
-    override suspend fun post(message: MessageVM) {
+    override fun stream(): Flow<MessageVM> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun post(messages: Flow<MessageVM>) {
         TODO("Not yet implemented")
     }
 }
